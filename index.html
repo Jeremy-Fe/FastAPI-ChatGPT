@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❤ChatGPT 음성대화❤</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chat-container { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        .user-message { text-align: right; }
+        .bot-message { text-align: left; }
+
+        .avatar {
+            width: 300px; /* 적절한 크기로 조정 */
+            height: 300px; /* 적절한 크기로 조정 */
+            background-image: url('/static/images/default.png');
+            background-size: cover; /* 이미지가 div 크기에 맞게 조정되도록 */
+        }
+        @keyframes mouthAnimation {
+            0% { background-image: url('/static/images/default.png'); }
+            50% { background-image: url('/static/images/talk1.png'); }
+            100% { background-image: url('/static/images/talk2.png'); }
+        }
+
+        .animatedMouth {
+            animation: mouthAnimation 1s infinite;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>ChatGPT 아바타 음성대화(Rocket Girl!)</h1>
+    <div id="chat-container" class="chat-container">
+    </div>
+    <form id="message-form">
+        <div id="avatar" class="avatar"></div>
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요." autocomplete="off" required>
+        <button type="submit">전송</button>
+    </form>
+
+    <script>
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+            addMessage('user', userInput);
+            // TODO: Send userInput to your server and get the response
+            // For demonstration, we just echo the user input
+            botMessage = axios.post('/getMessage', {
+                userInput : userInput
+            })
+                .then(function (response){
+                    // 요청 성공 시 처리
+                    console.log(response.data.response)
+                    botMessage = response.data.response
+                    addMessage('bot', 'Roxy: ' + botMessage);
+                    startMouthAnimation();
+                })
+                .catch(function (error){
+                    // 요청 실패 시 처리
+                    console.log(error)
+                    addMessage('bot', 'Echo: Error!' + error);
+                });
+            document.getElementById('user-input').value = ''; // Clear input field
+        });
+
+        function addMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add(sender + '-message');
+            messageDiv.textContent = message;
+            document.getElementById('chat-container').appendChild(messageDiv);
+        }
+        function startMouthAnimation() {
+            var avatar = document.getElementById('avatar');
+            avatar.classList.add('animatedMouth');
+
+            // 5초 후 애니메이션 멈춤
+            setTimeout(function() {
+                avatar.classList.remove('animatedMouth');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
